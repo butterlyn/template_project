@@ -16,7 +16,7 @@ def getRichLogger(
     traceback_hide_sunder_locals: bool = True,
     traceback_extra_lines: int = 5,
     traceback_suppressed_modules: Iterable[ModuleType] = (),
-    additional_handlers: logging.Handler | list[logging.Handler] = [],
+    additional_handlers: logging.Handler | Iterable[logging.Handler] | None = None,
 ) -> logging.Logger:
     """
     Configures a logger, defaults to rich logger with rich traceback.
@@ -53,7 +53,15 @@ def getRichLogger(
     # Set the logger message format based on whether rich logger is enabled
     format: str = rich_logger_format if enable_rich_logger else non_rich_logger_format
 
-    # Set the handlers based on whether rich logger is enabled
+    # Convert additional_handlers to list if not already a list
+    if isinstance(additional_handlers, logging.Handler):  # for single handlers
+        additional_handlers = [additional_handlers]
+    elif isinstance(additional_handlers, Iterable) and not isinstance(additional_handlers, str):
+        additional_handlers = list(additional_handlers)  # for non-list iterables
+    elif additional_handlers is None:
+        additional_handlers = []
+
+    # Combine rich handler with any provided additional handlers
     handlers: Iterable[logging.Handler] | None = [
         RichHandler(
             level=logging.getLevelName(logging_level),
