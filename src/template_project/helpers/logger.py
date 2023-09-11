@@ -78,7 +78,7 @@ def getRichLogger(
             suppress=traceback_suppressed_modules,
         )
 
-    def _get_list_additional_handlers() -> list[logging.Handler]:
+    def _convert_additional_handlers_to_list() -> list[logging.Handler]:
         """Convert additional_handlers to list for combining with rich handler"""
         additional_handlers_list: list[logging.Handler] = (
             [additional_handlers] if isinstance(additional_handlers, logging.Handler)
@@ -118,7 +118,7 @@ def getRichLogger(
 
     # Combine the rich handler with any additional handlers
     rich_handler = _get_rich_handler()
-    additional_handlers_list = _get_list_additional_handlers()
+    additional_handlers_list = _convert_additional_handlers_to_list()
     all_handlers = (
         rich_handler + additional_handlers_list if enable_rich_logger
         else additional_handlers_list
