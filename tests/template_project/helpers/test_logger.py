@@ -2,7 +2,6 @@ import logging
 import pytest
 from src.template_project.helpers.logger import getRichLogger
 from rich.logging import RichHandler
-import pandas as pd
 
 # ~~~ test default ~~~
 
@@ -29,7 +28,7 @@ def test_getRichLogger_custom():
         traceback_hide_dunder_locals=False,
         traceback_hide_sunder_locals=False,
         traceback_extra_lines=100,
-        traceback_suppressed_modules=[pd],
+        traceback_suppressed_modules=[pytest],
         additional_handlers=logging.FileHandler("test.log"),
     )
     assert isinstance(logging.getLogger(), logging.Logger)
