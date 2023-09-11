@@ -7,3 +7,4 @@ getRichLogger(
     traceback_extra_lines=10,
     traceback_suppressed_modules=(),
 )
+logging.debug("Rich logger and rich traceback enabled")
