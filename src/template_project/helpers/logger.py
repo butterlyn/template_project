@@ -19,27 +19,50 @@ def getRichLogger(
     additional_handlers: logging.Handler | Iterable[logging.Handler] | None = None,
 ) -> logging.Logger:
     """
-    Configures a rich logger with rich traceback.
-    Can be disabled for basic logger and basic traceback. Defaults to rich logger and traceback.
+    Substitute for logging.getLogger(), but pre-configured as rich logger with rich traceback.
 
-    Args:
-        logging_level (str | int, optional): The logging level to use. Defaults to 'NOTSET'.
-        logger_name (str, optional): The name of the logger. Defaults to __name__.
-        enable_rich_logger (bool, optional): Whether to enable the rich logger and rich traceback or basic. Defaults to True.
-        rich_logger_format (str, optional): The format string to use for the rich logger. Defaults to "%(message)s".
-        non_rich_logger_format (str, optional): The format string to use for the non-rich logger. Defaults to "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s".
-        traceback_show_locals (bool, optional): Whether to show local variables in tracebacks. Defaults to True.
-        traceback_hide_dunder_locals (bool, optional): Whether to hide dunder variables in tracebacks. Defaults to True.
-        traceback_hide_sunder_locals (bool, optional): Whether to hide sunder variables in tracebacks. Defaults to True.
-        traceback_extra_lines (int, optional): The number of extra lines to show in tracebacks. Defaults to 10.
-        traceback_suppressed_modules (Iterable[ModuleType], optional): The modules to suppress in tracebacks (e.g., pandas). Defaults to ().
-        additional_handlers (logging.Handler | list[logging.Handler], optional): Additional logging handlers to use. Defaults to [].
+    Parameters
+    ----------
+    logging_level : str or int, optional
+        The logging level to use. Defaults to 'NOTSET'.
+    logger_name : str, optional
+        The name of the logger. Defaults to __name__.
+    enable_rich_logger : bool, optional
+        Whether to enable the rich logger and rich traceback or basic. Defaults to True.
+    rich_logger_format : str, optional
+        The format string to use for the rich logger. Defaults to "%(message)s".
+    non_rich_logger_format : str, optional
+        The format string to use for the non-rich logger. Defaults to "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s".
+    traceback_show_locals : bool, optional
+        Whether to show local variables in tracebacks. Defaults to True.
+    traceback_hide_dunder_locals : bool, optional
+        Whether to hide dunder variables in tracebacks. Defaults to True.
+    traceback_hide_sunder_locals : bool, optional
+        Whether to hide sunder variables in tracebacks. Defaults to True.
+    traceback_extra_lines : int, optional
+        The number of extra lines to show in tracebacks. Defaults to 10.
+    traceback_suppressed_modules : Iterable[ModuleType], optional
+        The modules to suppress in tracebacks (e.g., pandas). Defaults to ().
+    additional_handlers : logging.Handler or list[logging.Handler], optional
+        Additional logging handlers to use. Defaults to [].
 
-    Returns:
-        logging.Logger: The configured logger.
+    Returns
+    -------
+    logging.Logger
+        The configured logger.
 
-    Raises:
-        TypeError: If additional_handlers is not a logging.Handler, Iterable[logging.Handler], or None.
+    Raises
+    ------
+    TypeError
+        If additional_handlers is not a logging.Handler, Iterable[logging.Handler], or None.
+
+    Example
+    -------
+    >>> import logging
+    >>> from logger import getRichLogger
+    >>> getRichLogger(loggin_level='DEBUG')
+    >>> logging.debug("this is a rich debug message! the traceback of the below unhandled exception is also rich")
+    >>> 1/0
     """
 
     # ~~~~~ helper functions ~~~~~
