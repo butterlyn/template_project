@@ -1,5 +1,7 @@
 import logging
 from src.template_project.helpers.logger import getRichLogger
+from src.template_project.library_books import main
+
 
 getRichLogger(
     logging_level="DEBUG",
@@ -8,3 +10,5 @@ getRichLogger(
     traceback_suppressed_modules=(),
 )
 logging.debug("Rich logger and rich traceback enabled")
+
+main()
