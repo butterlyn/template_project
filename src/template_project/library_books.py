@@ -8,8 +8,8 @@ from .helpers.validate_arguments import validate_arguments
 from .helpers.logger import getRichLogger
 
 # ~~~~~ evaluation ~~~~~
-import heartrate
-heartrate.trace(browser=True)
+# import heartrate
+# heartrate.trace(browser=True)
 
 
 # ~~~~~ logging ~~~~~
@@ -251,8 +251,7 @@ def transfer_book(
             book_giver.give_book(book),
         )
 
-
-@profile
+# @profile
 def main() -> None:
     # ~~~~~ initialise classes ~~~~~
     math_book_1: Book = Book(
@@ -297,3 +296,9 @@ def main() -> None:
         f"{local_library} has:\n{local_library.books_on_loan} books on loan.")
     logging.info(
         f"{local_library} has:\n{local_library.library_book_collection} books in collection.")
+
+if __name__ == "__main__":
+    # from pycallgraph import PyCallGraph
+    # from pycallgraph.output import GraphvizOutput
+    # with PyCallGraph(output=GraphvizOutput()):
+    main()
