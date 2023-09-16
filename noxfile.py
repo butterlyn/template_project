@@ -2,23 +2,15 @@ import nox
 
 
 @nox.session
-def type_check(session):
-    session.install("mypy")
-    session.install("mypy-extensions")
-    session.run("mypy", "--ignore-missing-imports", "src")
-
-
-@nox.session
-def lint(session):
-    session.install("autopep8")
-    session.run("autopep8", "--in-place", "--recursive", "src")
-
-
-@nox.session
 def test(session):
-    session.install("pytest")
+    session.install("-r", "requirements_dev.txt")
     session.install("-r", "requirements.txt")
+    session.run("autopep8", "--in-place", "--recursive", "src")
     session.run("pytest", "tests")
+    session.run("pytest", "--cov", "src")
+    session.run("mypy", "--ignore-missing-imports", "src")
+    session.run("mprof", "run", "run.py")
+    session.run("mprof", "plot", "--output", "mprof_plot.png")
 
 # # WIP not working yet 'refactor(test) add nox sess complexity'
 # @nox.session

@@ -1,1 +1,5 @@
-nox
+pytest
+pytest-cov
+mypy
+mypy-extensions
+autopep8
