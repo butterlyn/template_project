@@ -1,5 +1,13 @@
 pytest
 pytest-cov
+pytest-benchmark
 mypy
 mypy-extensions
 autopep8
+pycallgraph2  # requires graphviz installation on ubuntu
+memory-profiler
+rich
+exceptiongraph
+nox
+# py-heat  # requires conda install
+# heartrate  # requires conda install
