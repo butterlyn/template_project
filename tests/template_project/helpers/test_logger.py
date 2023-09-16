@@ -1,6 +1,6 @@
 import logging
 import pytest
-from src.template_project.helpers.logger import getRichLogger
+from template_project.helpers.rich_logger import getRichLogger
 from rich.logging import RichHandler
 
 # ~~~ test default ~~~
