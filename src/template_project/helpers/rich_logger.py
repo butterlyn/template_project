@@ -61,7 +61,7 @@ def getRichLogger(
     >>> import logging
     >>> from logger import getRichLogger
     >>> getRichLogger(loggin_level='DEBUG')
-    >>> logging.debug("this is a rich debug message! the traceback of the below unhandled exception is also rich")
+    >>> logging.debug("This is a rich debug message! The traceback of the below unhandled error is also rich")
     >>> 1/0
     """
 
@@ -78,12 +78,15 @@ def getRichLogger(
             suppress=traceback_suppressed_modules,
         )
 
-    def _convert_additional_handlers_to_list() -> list[logging.Handler]:
+    def _convert_additional_handlers_to_list(
+        additional_handlers
+    ) -> list[logging.Handler]:
         """Convert additional_handlers to list for combining with rich handler"""
         additional_handlers_list: list[logging.Handler] = (
-            [additional_handlers] if isinstance(additional_handlers, logging.Handler)
+            [] if additional_handlers is None
+            else [additional_handlers] if isinstance(additional_handlers, logging.Handler)
+            # if additional_handlers provided as tuple or other non-list Iterable, convert to list:
             else list(additional_handlers) if isinstance(additional_handlers, Iterable)
-            else [] if additional_handlers is None
             else TypeError(f"additional_handlers must be a logging.Handler, Iterable[logging.Handler], or None, not {type(additional_handlers)}")
         )
         return additional_handlers_list
@@ -94,7 +97,7 @@ def getRichLogger(
             RichHandler(
                 level=logging.getLevelName(logging_level),
                 omit_repeated_times=False,
-                rich_tracebacks=enable_rich_logger,
+                rich_tracebacks=True,
                 tracebacks_extra_lines=traceback_extra_lines,
                 tracebacks_theme="monokai",
                 tracebacks_word_wrap=False,
@@ -106,22 +109,26 @@ def getRichLogger(
 
     # ~~~~~ business logic ~~~~~
 
-    # Installs rich traceback for unhandled exceptions if enabled
+    # If enabled, install rich traceback for unhandled exceptions and get rich handler
     if enable_rich_logger:
         _install_rich_traceback()
+        rich_handler = _get_rich_handler()
+
+    # Convert additional_handlers to list for combining with rich handler
+    additional_handlers_list = _convert_additional_handlers_to_list(
+        additional_handlers
+    )
+
+    # Combine the rich handler with any additional handlers
+    all_handlers = (
+        rich_handler + additional_handlers_list if enable_rich_logger
+        else additional_handlers_list
+    )
 
     # Set the logger message format based on whether rich logger is enabled
     format: str = (
         rich_logger_format if enable_rich_logger
         else non_rich_logger_format
-    )
-
-    # Combine the rich handler with any additional handlers
-    rich_handler = _get_rich_handler()
-    additional_handlers_list = _convert_additional_handlers_to_list()
-    all_handlers = (
-        rich_handler + additional_handlers_list if enable_rich_logger
-        else additional_handlers_list
     )
 
     # Configure the logger with the handlers
@@ -133,3 +140,24 @@ def getRichLogger(
 
     # Get the logger and return it
     return logging.getLogger(logger_name)
+
+
+# ~~~~~ example usage ~~~~~
+if __name__ == "__main__":
+    getRichLogger(
+        logging_level="DEBUG",
+        traceback_show_locals=True,
+        traceback_extra_lines=10,
+        traceback_suppressed_modules=(),
+    )
+    logging.debug("Rich logger and rich traceback enabled")
+
+    # Gives rich traceback for unhandled errors (uncomment line below for demonstration)
+    # 1/0
+
+    # Also gives rich traceback for handled exceptions
+    try:
+        1/0
+    except Exception as e:
+        logging.exception(
+            f"This is an example rich logger error message for handled exception! Error: {e}")
