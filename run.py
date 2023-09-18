@@ -12,3 +12,4 @@ getRichLogger(
 logging.debug("Rich logger and rich traceback enabled")
 
 main()
+a=1

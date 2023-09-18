@@ -4,8 +4,8 @@ import dataclasses
 from typing import Protocol
 from enum import Enum
 from memory_profiler import profile
-from .helpers.validate_arguments import validate_arguments
-from .helpers.logger import getRichLogger
+# from .helpers.validate_arguments import validate_arguments
+# from .helpers.logger import getRichLogger
 
 # ~~~~~ evaluation ~~~~~
 # import heartrate
@@ -13,6 +13,141 @@ from .helpers.logger import getRichLogger
 
 
 # ~~~~~ logging ~~~~~
+from typing import Iterable
+from types import ModuleType
+import logging
+from rich.logging import RichHandler
+from rich import traceback
+
+
+def getRichLogger(
+    logging_level: str | int = "NOTSET",
+    logger_name: str = __name__,
+    enable_rich_logger: bool = True,
+    rich_logger_format: str = "%(message)s",
+    non_rich_logger_format: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
+    traceback_show_locals: bool = True,
+    traceback_hide_dunder_locals: bool = True,
+    traceback_hide_sunder_locals: bool = True,
+    traceback_extra_lines: int = 10,
+    traceback_suppressed_modules: Iterable[ModuleType] = (),
+    additional_handlers: logging.Handler | Iterable[logging.Handler] | None = None,
+) -> logging.Logger:
+    """
+    Substitute for logging.getLogger(), but pre-configured as rich logger with rich traceback.
+
+    Parameters
+    ----------
+    logging_level : str or int, optional
+        The logging level to use. Defaults to 'NOTSET'.
+    logger_name : str, optional
+        The name of the logger. Defaults to __name__.
+    enable_rich_logger : bool, optional
+        Whether to enable the rich logger and rich traceback or basic. Defaults to True.
+    rich_logger_format : str, optional
+        The format string to use for the rich logger. Defaults to "%(message)s".
+    non_rich_logger_format : str, optional
+        The format string to use for the non-rich logger. Defaults to "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s".
+    traceback_show_locals : bool, optional
+        Whether to show local variables in tracebacks. Defaults to True.
+    traceback_hide_dunder_locals : bool, optional
+        Whether to hide dunder variables in tracebacks. Defaults to True.
+    traceback_hide_sunder_locals : bool, optional
+        Whether to hide sunder variables in tracebacks. Defaults to True.
+    traceback_extra_lines : int, optional
+        The number of extra lines to show in tracebacks. Defaults to 10.
+    traceback_suppressed_modules : Iterable[ModuleType], optional
+        The modules to suppress in tracebacks (e.g., pandas). Defaults to ().
+    additional_handlers : logging.Handler or list[logging.Handler], optional
+        Additional logging handlers to use. Defaults to [].
+
+    Returns
+    -------
+    logging.Logger
+        The configured logger.
+
+    Raises
+    ------
+    TypeError
+        If additional_handlers is not a logging.Handler, Iterable[logging.Handler], or None.
+
+    Example
+    -------
+    >>> import logging
+    >>> from logger import getRichLogger
+    >>> getRichLogger(loggin_level='DEBUG')
+    >>> logging.debug("this is a rich debug message! the traceback of the below unhandled exception is also rich")
+    >>> 1/0
+    """
+
+    # ~~~~~ helper functions ~~~~~
+
+    def _install_rich_traceback() -> None:
+        """Installs rich traceback for unhandled exceptions."""
+        traceback.install(
+            extra_lines=traceback_extra_lines,
+            theme='monokai',
+            show_locals=traceback_show_locals,
+            locals_hide_dunder=traceback_hide_dunder_locals,
+            locals_hide_sunder=traceback_hide_sunder_locals,
+            suppress=traceback_suppressed_modules,
+        )
+
+    def _convert_additional_handlers_to_list() -> list[logging.Handler]:
+        """Convert additional_handlers to list for combining with rich handler"""
+        additional_handlers_list: list[logging.Handler] = (
+            [additional_handlers] if isinstance(additional_handlers, logging.Handler)
+            else list(additional_handlers) if isinstance(additional_handlers, Iterable)
+            else [] if additional_handlers is None
+            else TypeError(f"additional_handlers must be a logging.Handler, Iterable[logging.Handler], or None, not {type(additional_handlers)}")
+        )
+        return additional_handlers_list
+
+    def _get_rich_handler() -> list[logging.Handler]:
+        """Create rich handler in a list for combining with additional handlers"""
+        return [
+            RichHandler(
+                level=logging.getLevelName(logging_level),
+                omit_repeated_times=False,
+                rich_tracebacks=enable_rich_logger,
+                tracebacks_extra_lines=traceback_extra_lines,
+                tracebacks_theme="monokai",
+                tracebacks_word_wrap=False,
+                tracebacks_show_locals=traceback_show_locals,
+                tracebacks_suppress=traceback_suppressed_modules,
+                log_time_format="[%Y-%m-%d %H:%M:%S] ",
+            )
+        ]
+
+    # ~~~~~ business logic ~~~~~
+
+    # Installs rich traceback for unhandled exceptions if enabled
+    if enable_rich_logger:
+        _install_rich_traceback()
+
+    # Set the logger message format based on whether rich logger is enabled
+    format: str = (
+        rich_logger_format if enable_rich_logger
+        else non_rich_logger_format
+    )
+
+    # Combine the rich handler with any additional handlers
+    rich_handler = _get_rich_handler()
+    additional_handlers_list = _convert_additional_handlers_to_list()
+    all_handlers = (
+        rich_handler + additional_handlers_list if enable_rich_logger
+        else additional_handlers_list
+    )
+
+    # Configure the logger with the handlers
+    logging.basicConfig(
+        level=logging.getLevelName(logging_level),
+        format=format,
+        handlers=all_handlers,
+    )
+
+    # Get the logger and return it
+    return logging.getLogger(logger_name)
 
 
 getRichLogger(
@@ -34,7 +169,60 @@ class BookDefaults(Enum):
 
 # ~~~~~ helpers ~~~~~
 
-...
+import logging
+from exceptiongroup import ExceptionGroup
+
+
+def validate_arguments(
+    class_name: str,
+    argument_validation_checks: list[tuple[bool, str]],
+) -> None:
+    """
+    Validate class instance arguments and raise and log errors if any occur.
+    Intended to be used in `__post_init__` methods.
+
+    Parameters
+    ----------
+    class_name : str
+        The name of the class being initialized. If in doubt, use `type(self).__name__`.
+    argument_validation_checks : list[tuple[bool, str]]
+        A list of tuples containing a boolean for passing a conditional statement indicating whether the argument is valid and an error message if it is not.
+
+    Raises
+    ------
+    ExceptionGroup
+        If any errors occurred during argument validation, an ExceptionGroup is raised containing all the errors.
+
+    Examples
+    -----
+    >>> validate_arguments_raise_and_log_errors(
+    ...     "Book",
+    ...     [
+    ...         (len(book_name) >= Book.BOOK_NAME_MINIMUM_LENGTH, f"Book name must be at least {Book.BOOK_NAME_MINIMUM_LENGTH} characters long"),
+    ...         (book_page_count >= Book.BOOK_MINIMUM_PAGE_COUNT, f"Book must have at least {Book.BOOK_MINIMUM_PAGE_COUNT} pages"),
+    ...     ],
+    ... )
+    """
+    # variable to store any errors that occur
+    all_errors: list[Exception] = []
+
+    # check if all arguments are valid, log and store errors if not
+    for arugment_validation_check in argument_validation_checks:
+        is_valid, error_message = arugment_validation_check
+        if is_valid:
+            continue
+        error: Exception = AttributeError(error_message)
+        logging.error(error)
+        all_errors.append(error)
+
+    # raise all errors if any occurred
+    if not all_errors:
+        return
+    raise ExceptionGroup(
+        f"{len(all_errors)} attribute errors occurred when initialising {class_name}",
+        all_errors,
+    )
+
 
 
 # ~~~~~ simple dataclasses ~~~~~
@@ -302,3 +490,5 @@ if __name__ == "__main__":
     # from pycallgraph.output import GraphvizOutput
     # with PyCallGraph(output=GraphvizOutput()):
     main()
+    Book(book_name="Alphred's Book", book_page_count=120)
+    a=1
