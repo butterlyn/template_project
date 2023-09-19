@@ -6,15 +6,15 @@ import pandas as pd
 import cx_Oracle
 import WA_db
 # local imports
-from rich_logger import getRichLogger
+from . import getRichLogger
 
 getRichLogger(
     logging_level="DEBUG",
+    logger_name=__name__,
     traceback_show_locals=True,
     traceback_extra_lines=10,
     traceback_suppressed_modules=(),
 )
-logging.debug("Rich logger and rich traceback enabled")
 
 
 def _initialise_oracle_client(oracle_client_path: str) -> None:
@@ -65,6 +65,7 @@ class SqlQuerier:
         db_name: str = "WEMSDB",
     ) -> pd.DataFrame:
         """Return a pandas dataframe from a SQL query."""
+        logging.debug(f"Querying {db_name}...")
         return pd.read_sql(
             query,
             self._sql_db_connections[db_name].db
@@ -86,6 +87,7 @@ class SqlQuerier:
 
 
 class QueryToPandasDataframCapable(Protocol):
+    """Protocol interface for classes that can return a pandas dataframe from a SQL query."""
     def query_to_pandas_dataframe(
         self,
         query: str,
