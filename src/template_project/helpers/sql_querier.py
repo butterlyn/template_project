@@ -1,20 +1,13 @@
 # standard library imports
 import logging
-from typing import Protocol
+from typing import (
+    Protocol,
+    Any,
+)
 # third party imports
 import pandas as pd
 import cx_Oracle
 import WA_db
-# local imports
-from . import getRichLogger
-
-getRichLogger(
-    logging_level="DEBUG",
-    logger_name=__name__,
-    traceback_show_locals=True,
-    traceback_extra_lines=10,
-    traceback_suppressed_modules=(),
-)
 
 
 def _initialise_oracle_client(oracle_client_path: str) -> None:
@@ -27,12 +20,13 @@ def _get_sql_db_names() -> list[str]:
     return list(WA_db.standard_dbs.keys())
 
 
-def _connect_to_sql_databases(sql_db_names: list[str]) -> dict:
+def _connect_to_sql_databases(sql_db_names: list[str]) -> dict[str, Any]:
     """Connect to the SQL databases and return a dictionary of the connections."""
-    sql_db_connection = {}
+    sql_db_connection: dict[str, Any] = {}
+    sql_db_name: str
     for sql_db_name in sql_db_names[0:2]:
         try:
-            sql_db_connection[sql_db_name] = WA_db.connect(db_name=sql_db_name)
+            sql_db_connection[sql_db_name]: dict[str, Any] = WA_db.connect(db_name=sql_db_name)
             logging.debug(f"Connected to {sql_db_name}")
         except cx_Oracle.DatabaseError:
             logging.warning(f"Could not connect to {sql_db_name}")
@@ -40,24 +34,26 @@ def _connect_to_sql_databases(sql_db_names: list[str]) -> dict:
 
 
 class SqlQuerier:
-    _sql_db_to_connect: list[str] = _get_sql_db_names()
-    _sql_db_connections: dict = _connect_to_sql_databases(_sql_db_to_connect)
 
     def __init__(
         self,
         oracle_client_path: str = r"C:\Users\nbutterly\Oracle\instantclient_21_10",
     ) -> None:
         """Initialise the SqlQuerier class and store the arguments."""
-        self._oracle_client_path = oracle_client_path
+        # store the arguments
+        self._oracle_client_path: str = oracle_client_path
 
-    def __post_init__(self) -> None:
-        """Post-initialisation, initialise the oracle database connection."""
+        # initialise the oracle client
+        logging.info("Connecting to Oracle client...")
         _initialise_oracle_client(self._oracle_client_path)
+        sql_db_to_connect: list[str] = _get_sql_db_names()
+        self._sql_db_connections: dict[str, Any] = _connect_to_sql_databases(sql_db_to_connect)
+        logging.info(f"Connected to {', '.join(list(self._sql_db_connections.keys()))}.")
 
     @property
     def sql_db_names(self) -> list[str]:
         """Return the names of the SQL databases available to query."""
-        return self.sql_db_names
+        return list(self._sql_db_connections.keys())
 
     def query_to_pandas_dataframe(
         self,
@@ -65,11 +61,13 @@ class SqlQuerier:
         db_name: str = "WEMSDB",
     ) -> pd.DataFrame:
         """Return a pandas dataframe from a SQL query."""
-        logging.debug(f"Querying {db_name}...")
-        return pd.read_sql(
+        logging.info(f"Querying {db_name}...")
+        df: pd.DataFrame = pd.read_sql(
             query,
             self._sql_db_connections[db_name].db
         )
+        logging.info(f"Query fulfilled by {db_name}.")
+        return df
 
     # # WIP: dask doesn't support SQL alchemy connections
     # def query_to_dask_dataframe(
@@ -94,6 +92,7 @@ class QueryToPandasDataframCapable(Protocol):
         db_name: str,
     ) -> pd.DataFrame:
         pass
+
 
 # %%
 # MAIN
@@ -123,5 +122,7 @@ ORDER BY facility_creation_date
 
     print()
     print("Pandas DataFrame")
-    pdf.shape
+    print()
+    print(pdf.shape)
+    print()
     print(pdf.head())
