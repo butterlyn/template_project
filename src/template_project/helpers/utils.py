@@ -2,10 +2,11 @@
 from typing import Any, Tuple
 import logging
 # local imports
-from rich_logger import getRichLogger
+from . import getRichLogger
 
 getRichLogger(
     logging_level="DEBUG",
+    logger_name=__name__,
     traceback_show_locals=True,
     traceback_extra_lines=10,
     traceback_suppressed_modules=(),
