@@ -60,66 +60,6 @@ def duckdb_parquet_basic_benchmark_function(file_path_to_load: str) -> None:
     duckdb_memory_database.execute(f"CREATE TABLE my_table AS SELECT * FROM read_parquet('{file_path_to_load}')")
 
 
-class Benchmark(Protocol):
-    benchmark_name: str
-    benchmark_description: str
-    benchmark_function: Union[Callable, Type]
-    benchmark_units: str
-    benchmark_library: str
-    benchmark_results: Any
-
-
-class LoaderBenchmark(Benchmark, Protocol):
-    file_type: str
-    benchmark_units: str = 'seconds'
-    benchmark_results: float = None
-
-    @property
-    def file_path(self) -> str:
-        return f'large_file.{self.file_type}'
-
-    def benchmark(self, file_path: str = file_path) -> None:
-        return self.benchmark_function(file_path)
-
-
-class ComputeBenchmark(Benchmark, Protocol):
-    input_data: Any
-    benchmark_units: str = 'seconds'
-
-
-class BenchmarkSuite(Protocol):
-    benchmark_suite_name: str
-    benchmark_suite_description: str
-    benchmark_suite_benchmarks: list[Benchmark]
-
-
-class LoaderBenchmarkSuite(BenchmarkSuite, Protocol):
-    benchmark_suite_name: str
-    benchmark_suite_description: str
-    benchmark_suite_benchmarks: list[LoaderBenchmark]
-
-    def benchmark_all(self, file_path: str = None) -> None:
-        benchmark: LoaderBenchmark
-        for benchmark in self.benchmark_suite_benchmarks:
-            benchmark.benchmark(file_path=file_path)
-
-
-class ComputeBenchmarkSuite(BenchmarkSuite, Protocol):
-    benchmark_suite_name: str
-    benchmark_suite_description: str
-    benchmark_suite_benchmarks: list[ComputeBenchmark]
-
-
-class Benchmarker(Protocol):
-    benchmark_suite: BenchmarkSuite
-    benchmark_suite_name: str
-    benchmark_suite_description: str
-    benchmark_suite_benchmarks: list[Benchmark]
-
-    def benchmark_all(self) -> None:
-
-
-
 # Compiled benchmarks
 
 data_frame_loaders: LoadersDictTypeHint = {
