@@ -2,14 +2,6 @@
 # IMPORTING
 # standard libary imports
 from functools import partial
-from typing import (
-    Callable,
-    Union,
-    Type,
-    Protocol,
-    Any,
-)
-from types import ModuleType
 # third party imports
 import pandas as pd
 import pyarrow.parquet as pq
@@ -19,7 +11,7 @@ import fastparquet as fp
 import duckdb
 from duckdb import DuckDBPyConnection
 # local imports
-from utils import LoadersDictTypeHint
+from .utils import LoadersDictTypeHint
 
 
 # %%
@@ -62,7 +54,7 @@ def duckdb_parquet_basic_benchmark_function(file_path_to_load: str) -> None:
 
 # Compiled benchmarks
 
-data_frame_loaders: LoadersDictTypeHint = {
+loaders_dict: LoadersDictTypeHint = {
     'csv': {
         'pandas': {
             'basic': pd.read_csv,
@@ -79,41 +71,40 @@ data_frame_loaders: LoadersDictTypeHint = {
             'basic': pl.read_csv,
             'low_memory': partial(pl.read_csv, low_memory=True),
             'use_pyarrow': partial(pl.read_csv, use_pyarrow=True),
-            'low_memory_use_pyarrow': partial(pl.read_csv, use_pyarrow=True, low_memory=True),
+            # 'low_memory_use_pyarrow': partial(pl.read_csv, use_pyarrow=True, low_memory=True),
         },
         'duckdb': {
             'basic': duckdb_csv_basic_benchmark_function,
             'return_as_dataframe': duckdb_csv_return_as_dataframe_benchmark_function,
         }
     },
-    'parquet': {
-        'pandas': {
-            'basic': pd.read_parquet,
-            'engine_pyarrow': partial(pd.read_parquet, engine='pyarrow'),
-            'engine_fastparquet': partial(pd.read_parquet, engine='fastparquet'),
-        },
-        'dask': {
-            'basic': dd.read_parquet,
-            'engine_pyarrow': partial(dd.read_parquet, engine='pyarrow'),
-            'engine_fastparquet': partial(dd.read_parquet, engine='fastparquet'),
-        },
-        'polars': {
-            'basic': pl.read_parquet,
-            'use_pyarrow': partial(pl.read_parquet, use_pyarrow=True),
-            'low_memory': partial(pl.read_parquet, low_memory=True),
-            'low_memory_use_pyarrow': partial(pl.read_parquet, low_memory=True, use_pyarrow=True),
-        },
-        'duckdb': {
-            'basic': duckdb_parquet_basic_benchmark_function,
-            'return_as_dataframe': duckdb_parquet_return_as_dataframe_benchmark_function,
-        },
-        'fastparquet': {
-            'basic (read only, no dataframe output)': fp.ParquetFile,
-            'return_as_dataframe': fastparquet_parquet_return_as_dataframe_benchmark_function,
-        },
-        'pyarrow': {
-            'basic (read only, no dataframe output)': pq.ParquetFile,
-            'read_table (read only, no dataframe output)': pq.read_table,
-        },
-    },
+    # 'parquet': {
+    #     'pandas': {
+    #         'basic': pd.read_parquet,
+    #         'engine_pyarrow': partial(pd.read_parquet, engine='pyarrow'),
+    #         'engine_fastparquet': partial(pd.read_parquet, engine='fastparquet'),
+    #     },
+    #     'dask': {
+    #         'basic': dd.read_parquet,
+    #         'engine_pyarrow': partial(dd.read_parquet, engine='pyarrow'),
+    #         'engine_fastparquet': partial(dd.read_parquet, engine='fastparquet'),
+    #     },
+    #     'polars': {
+    #         'basic': pl.read_parquet,
+    #         'use_pyarrow': partial(pl.read_parquet, use_pyarrow=True),
+    #         'low_memory': partial(pl.read_parquet, low_memory=True),
+    #         'low_memory_use_pyarrow': partial(pl.read_parquet, low_memory=True, use_pyarrow=True),
+    #     },
+    #     'duckdb': {
+    #         'basic': duckdb_parquet_basic_benchmark_function,
+    #     },
+    #     'fastparquet': {
+    #         'basic (read only, no dataframe output)': fp.ParquetFile,
+    #         'return_as_dataframe': fastparquet_parquet_return_as_dataframe_benchmark_function,
+    #     },
+    #     'pyarrow': {
+    #         'basic (read only, no dataframe output)': pq.ParquetFile,
+    #         'read_table (read only, no dataframe output)': pq.read_table,
+    #     },
+    # },
 }
