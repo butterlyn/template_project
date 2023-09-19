@@ -1,6 +1,8 @@
+# standard library imports
 from typing import Iterable
 from types import ModuleType
 import logging
+# third party imports
 from rich.logging import RichHandler
 from rich import traceback
 
