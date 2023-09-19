@@ -1,22 +1,14 @@
+# standard library imports
 import logging
 from dataclasses import field
 import dataclasses
-from typing import Protocol
-from enum import Enum
-from memory_profiler import profile
-# from .helpers.validate_arguments import validate_arguments
-# from .helpers.logger import getRichLogger
-
-# ~~~~~ evaluation ~~~~~
-# import heartrate
-# heartrate.trace(browser=True)
-
-
-# ~~~~~ logging ~~~~~
-from typing import Iterable
+from typing import (
+    Protocol,
+    Iterable,
+)
 from types import ModuleType
+from enum import Enum
 import logging
-from rich.logging import RichHandler
 from rich import traceback
 
 
