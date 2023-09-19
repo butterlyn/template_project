@@ -9,6 +9,7 @@ from typing import (
 import logging
 # third party imports
 import pandas as pd
+import dask.dataframe as dd
 import numpy as np
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -18,81 +19,12 @@ from ..helpers import (
     flatten_dict,
     count_final_values_in_dict,
 )
-from utils import LoadersDictTypeHint
+from .utils import LoadersDictTypeHint
+from .benchmarks import loaders_dict
 
 
 # %%
 # Functions
-
-def _time_how_long_to_load_dataframe(
-    loader: Union[Callable, Type],
-    file_path_to_load: str,
-) -> float:
-    """time how long it takes to load a dataframe from a file"""
-    start_time: float = time.time()
-    loader(file_path_to_load)
-    end_time: float = time.time()
-    return (end_time - start_time)
-
-
-def time_dataframe_loaders(
-    data_frame_loaders: LoadersDictTypeHint,
-    files_path_to_load_given_the_filetype: dict[str, str],
-    progress_bar_enabled: bool = True,
-) -> None:
-    """time how long it takes to load a file using difference dataframe loaders"""
-    # count of loaders for progress bar
-    loader_count: int = count_final_values_in_dict(data_frame_loaders)
-
-    with alive_bar(total=loader_count) if progress_bar_enabled else None as bar:
-        # flatten the data_frame_loaders dictionary to get the loaders and labels
-        flattened_data_frame_loaders: dict[str, Union[Callable, Type]] = flatten_dict(
-            data_frame_loaders,
-            parent_key='LOAD_TIME',
-            sep='-',
-        )
-
-        # store the load times
-        load_times: dict[str, float] = {}
-
-        # time how long it takes to load each dataframe from a file
-        label: str
-        file_type: str
-        loader: Union[Callable, Type]
-        for file_type in data_frame_loaders.keys():
-            file_path_to_load: str = files_path_to_load_given_the_filetype[file_type]
-            for label, loader in flattened_data_frame_loaders.items():
-                logging.debug(f'Loading {label}...')
-                load_time: float = _time_how_long_to_load_dataframe(
-                    loader=loader,
-                    file_path_to_load=file_path_to_load,
-                )
-                load_times[label] = load_time
-                bar()
-
-    # return the load times
-    return load_times
-
-
-def sort_load_times(load_times: dict[str, float]) -> dict[str, float]:
-    """sort the load times"""
-    logging.debug('Sorting load times...')
-    return dict(
-        sorted(
-            load_times.items(),
-            key=lambda item: item[1]
-        )
-    )
-
-
-def print_load_times(load_times: dict[str, float]) -> None:
-    """print the load times"""
-    logging.debug('Printing load times...')
-    load_time: float
-    label: str
-    for label, load_time in load_times.items():
-        print(f'{label}: {load_time}')
-
 
 def generate_data(
     num_rows: int,
@@ -118,28 +50,115 @@ def generate_data(
     # Write DataFrame to CSV file
     df.to_csv(csv_file, index=False)
 
-    # Create Table object
-    table = pa.Table.from_arrays(
-        [pa.array(data[:, i]) for i in range(len(columns))],
-        names=columns
+    # Write DataFrame to Parquet file
+    df.to_parquet(parquet_file, index=False)
+
+
+def __time_how_long_to_load_dataframe(
+    loader: Union[Callable, Type],
+    file_path_to_load: str,
+) -> float:
+    """time how long it takes to load a dataframe from a file"""
+    start_time: float = time.time()
+    loader(file_path_to_load)
+    end_time: float = time.time()
+    return (end_time - start_time)
+
+
+def _time_dataframe_loaders(
+    data_frame_loaders: LoadersDictTypeHint,
+    files_path_to_load_given_the_filetype: dict[str, str],
+    progress_bar_enabled: bool = True,
+) -> dict[str, float]:
+    """time how long it takes to load a file using difference dataframe loaders"""
+    # count of loaders for progress bar
+    loader_count: int = count_final_values_in_dict(data_frame_loaders)
+
+    with alive_bar(total=loader_count) if progress_bar_enabled else None as bar:
+        # flatten the data_frame_loaders dictionary to get the loaders and labels
+        flattened_data_frame_loaders: dict[str, Union[Callable, Type]] = flatten_dict(
+            data_frame_loaders,
+            parent_key='LOAD_TIME',
+            sep='-',
+        )
+
+        # store the load times
+        load_times: dict[str, float] = {}
+
+        # time how long it takes to load each dataframe from a file
+        label: str
+        file_type: str
+        loader: Union[Callable, Type]
+        for file_type in data_frame_loaders.keys():
+            file_path_to_load: str = files_path_to_load_given_the_filetype[file_type]
+            for label, loader in flattened_data_frame_loaders.items():
+                logging.debug(f'Loading {label}...')
+                load_time: float = __time_how_long_to_load_dataframe(
+                    loader=loader,
+                    file_path_to_load=file_path_to_load,
+                )
+                load_times[label] = load_time
+                bar()
+
+    # return the load times
+    return load_times
+
+
+def _sort_load_times(load_times: dict[str, float]) -> dict[str, float]:
+    """sort the load times"""
+    logging.debug('Sorting load times...')
+    return dict(
+        sorted(
+            load_times.items(),
+            key=lambda item: item[1]
+        )
     )
 
-    # Write Table to Parquet file
-    pq.write_table(table, parquet_file)
 
+def _print_load_times(load_times: dict[str, float]) -> None:
+    """print the load times"""
+    logging.debug('Printing load times...')
+    load_time: float
+    label: str
+    for label, load_time in load_times.items():
+        print(f'{label}: {load_time}')
+    
 
 # %%
 # Process functions
 
+def benchmark_loaders(
+    files_path_to_load_given_the_filetype: dict[str, str],
+    loaders_dict: LoadersDictTypeHint = loaders_dict,
+    progress_bar_enabled: bool = True,
+) -> None:
+    """benchmark the loaders"""
+    # time how long it takes to load each dataframe from a file
+    load_times: dict[str, float] = _time_dataframe_loaders(
+        data_frame_loaders=loaders_dict,
+        files_path_to_load_given_the_filetype=files_path_to_load_given_the_filetype,
+        progress_bar_enabled=progress_bar_enabled,
+    )
+
+    # sort the load times
+    sorted_load_times: dict[str, float] = _sort_load_times(load_times)
+
+    # print the load times
+    _print_load_times(sorted_load_times)
+
+
+# %%
+# Main function
+
 def main():
     files_path_to_load_given_the_filetype: dict[str, str] = {
-        'parquet': 'large_file.parquet',
-        'csv': 'large_file.csv',
+        'parquet': 'larger_file.parquet',
+        'csv': 'larger_file.csv',
     }
 
     logging.info('Generating mock data...')
     generate_data(
-        num_rows=10000,
+        num_rows=10_000_000,
         columns=['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
         csv_file=files_path_to_load_given_the_filetype['csv'],
         parquet_file=files_path_to_load_given_the_filetype['parquet'],
@@ -147,8 +166,9 @@ def main():
 
     logging.info('Benchmarking data loaders...')
     # time how long it takes to load each dataframe from a file
-    time_dataframe_loaders(
+    benchmark_loaders(
         files_path_to_load_given_the_filetype=files_path_to_load_given_the_filetype,
+        loaders_dict=loaders_dict,
         progress_bar_enabled=True,
     )
 
