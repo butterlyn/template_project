@@ -1,17 +1,9 @@
 # standard library imports
-from typing import Any, Tuple
-import logging
-# local imports
-from . import getRichLogger
-
-getRichLogger(
-    logging_level="DEBUG",
-    logger_name=__name__,
-    traceback_show_locals=True,
-    traceback_extra_lines=10,
-    traceback_suppressed_modules=(),
+from typing import (
+    Any,
+    Tuple,
+    Iterable,
 )
-logging.debug("Rich logger and rich traceback enabled")
 
 
 def count_final_values_in_dict(dictionary: dict) -> int:
@@ -32,9 +24,11 @@ def flatten_dict(
     sep: str = '.',
 ) -> dict[str, Any]:
     """Flatten a nested dictionary to a dictionary one level deep, concatenating the original keys with a separator."""
-    items = []
+    items: list[tuple[str, Any]] = []
+    key: str
+    value: Any
     for key, value in dictionary.items():
-        new_key = parent_key + sep + key if parent_key else key
+        new_key: str = parent_key + sep + key if parent_key else key
         if isinstance(value, dict):
             items.extend(flatten_dict(value, new_key, sep=sep).items())
         else:
@@ -62,18 +56,28 @@ def dictionary_deepest_key_value_pairs(
     return result
 
 
+def sort_dict_by_values(dictionary: dict, reverse: bool = False) -> dict[Any, Iterable]:
+    """Sort a dictionary by its values"""
+    return dict(
+        sorted(
+            dictionary.items(),
+            key=lambda item: item[1]
+        )
+    )
+
+
 # Demonstration
 if __name__ == "__main__":
     # nested dict for example
     nested_dict: dict = {
         "a": {
             "b": {
-                "c": 1,
-                "d": 2,
+                "c": 66,
+                "d": 22,
             },
-            "e": 3,
+            "e": 33,
         },
-        "f": 4,
+        "f": 88,
     }
 
     print("Example of a nested dictionary")
@@ -83,6 +87,9 @@ if __name__ == "__main__":
     print()
     print("Flattened dictionary with higher-level keys concatenated with '.'")
     print(flatten_dict(nested_dict))
+    print()
+    print("Then sorting by values")
+    print(sort_dict_by_values(flatten_dict(nested_dict)))
     print()
     print("Deepest key-value pairs of nested dictionary")
     print(dictionary_deepest_key_value_pairs(nested_dict))
