@@ -35,18 +35,30 @@ def validate_arguments(
     # variable to store any errors that occur
     all_errors: list[Exception] = []
 
+    # total number of validations to perform
+    total_validations_count: int = len(argument_validation_checks)
+
+    current_validation_index: int = 0
+    passed_count: int = 0
+    failed_count: int = 0
     # check if all arguments are valid, log and store errors if not
     for arugment_validation_check in argument_validation_checks:
+        current_validation_index += 1
         is_valid, error_message = arugment_validation_check
         if is_valid:
-            continue
-        error: Exception = AttributeError(error_message)
-        logging.error(error)
-        all_errors.append(error)
+            passed_count += 1
+        else:
+            error: Exception = AttributeError(error_message)
+            logging.error(error)
+            all_errors.append(error)
+            failed_count += 1
+        logging.debug(f"{current_validation_index}/{total_validations_count} - {passed_count} passed, {failed_count} failed. Validating arugments for initialising {class_name}.")
 
     # raise all errors if any occurred
     if not all_errors:
         return
+    if len(all_errors) == 1:
+        raise all_errors[0]
     raise ExceptionGroup(
         f"{len(all_errors)} attribute errors occurred when initialising {class_name}",
         all_errors,
