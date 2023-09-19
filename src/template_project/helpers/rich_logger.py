@@ -9,7 +9,7 @@ from rich import traceback
 
 def getRichLogger(
     logging_level: str | int = "NOTSET",
-    logger_name: str = __name__,
+    logger_name: str = None,
     enable_rich_logger: bool = True,
     rich_logger_format: str = "%(message)s",
     non_rich_logger_format: str = "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s",
@@ -28,7 +28,7 @@ def getRichLogger(
     logging_level : str or int, optional
         The logging level to use. Defaults to 'NOTSET'.
     logger_name : str, optional
-        The name of the logger. Defaults to __name__.
+        The name of the logger. Defaults to None.
     enable_rich_logger : bool, optional
         Whether to enable the rich logger and rich traceback or basic. Defaults to True.
     rich_logger_format : str, optional
@@ -140,8 +140,20 @@ def getRichLogger(
         handlers=all_handlers,
     )
 
+    logger = logging.getLogger(logger_name)
+
+    # Log that the logger has been configured
+    if enable_rich_logger:
+        logging.debug(
+            f"Rich logger and rich traceback enabled for {logger.name}"
+        )
+    else:
+        logging.debug(
+            f"Basic logger enabled for {logger.name}"
+        )
+
     # Get the logger and return it
-    return logging.getLogger(logger_name)
+    return logger
 
 
 # ~~~~~ example usage ~~~~~
@@ -152,7 +164,6 @@ if __name__ == "__main__":
         traceback_extra_lines=10,
         traceback_suppressed_modules=(),
     )
-    logging.debug("Rich logger and rich traceback enabled")
 
     # Gives rich traceback for unhandled errors (uncomment line below for demonstration)
     # 1/0
