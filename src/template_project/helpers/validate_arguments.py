@@ -63,3 +63,50 @@ def validate_arguments(
         f"{len(all_errors)} attribute errors occurred when initialising {class_name}",
         all_errors,
     )
+
+
+if __name__ == "__main__":
+    import dataclasses
+
+    @dataclasses.dataclass(
+        frozen=True,
+        slots=True,
+        kw_only=True,
+    )
+    class MyClass:
+        """class_name class"""
+        instance_attribute_1: str
+        instance_attribute_2: int
+
+        @property
+        def composed_attribute_1(self) -> float:
+            return float(self.instance_attribute_2)
+
+        @property
+        def _class_name(self) -> str:
+            return type(self).__name__
+
+        def __post_init__(self) -> None:
+            """Validate arguments after initialisation"""
+            logging.debug(f"Validating {self._class_name} arguments...")
+            validate_arguments(
+                class_name=self._class_name,
+                argument_validation_checks=[
+                    # validate instance_attribute_1
+                    (
+                        isinstance(self.instance_attribute_1, str),
+                        f"{self.instance_attribute_1} should be a string!.",
+                    ),
+                    # validate instance_attribute_2
+                    (
+                        isinstance(self.instance_attribute_2, int),
+                        f"{self.instance_attribute_2} should be a integer!.",
+                    ),
+                ],
+            )
+
+    logging.debug("Creating instance of MyClass with incorrect arguments...")
+    my_class = MyClass(
+        instance_attribute_1="string",
+        instance_attribute_2=1.0,
+    )
