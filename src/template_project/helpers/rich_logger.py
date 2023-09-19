@@ -140,26 +140,15 @@ def getRichLogger(
         handlers=all_handlers,
     )
 
-    logger = logging.getLogger(logger_name)
-
-    # Log that the logger has been configured
-    if enable_rich_logger:
-        logging.debug(
-            f"Rich logger and rich traceback enabled for {logger.name}"
-        )
-    else:
-        logging.debug(
-            f"Basic logger enabled for {logger.name}"
-        )
-
     # Get the logger and return it
-    return logger
+    return logging.getLogger(logger_name)
 
 
 # ~~~~~ example usage ~~~~~
 if __name__ == "__main__":
     getRichLogger(
         logging_level="DEBUG",
+        logger_name=__name__,
         traceback_show_locals=True,
         traceback_extra_lines=10,
         traceback_suppressed_modules=(),
