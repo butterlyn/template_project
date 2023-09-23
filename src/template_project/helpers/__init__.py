@@ -5,7 +5,12 @@ from .dictionary_utils import (
     flatten_dict,
     count_final_values_in_dict,
 )
+from .file_utils import (
+    replace_file_line_containing_matching_string,
+    append_string_to_start_or_end_of_file,
+)
 from .validate_arguments import validate_arguments
+from .render_plantuml_diagram import render_plantuml_diagram
 
 __all__ = [
     getRichLogger,
@@ -14,12 +19,7 @@ __all__ = [
     flatten_dict,
     count_final_values_in_dict,
     validate_arguments,
+    replace_file_line_containing_matching_string,
+    render_plantuml_diagram,
+    append_string_to_start_or_end_of_file,
 ]
-
-getRichLogger(
-    logging_level="INFO",
-    logger_name=__name__,
-    traceback_show_locals=False,
-    traceback_extra_lines=10,
-    traceback_suppressed_modules=(),
-)
