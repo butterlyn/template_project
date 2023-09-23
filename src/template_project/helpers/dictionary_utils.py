@@ -3,6 +3,7 @@ from typing import (
     Any,
     Tuple,
     Iterable,
+    Hashable,
 )
 
 
@@ -65,11 +66,78 @@ def sort_dict_by_values(dictionary: dict, reverse: bool = False) -> dict[Any, It
         )
     )
 
+# WIP, not working yet. The function is not recursive.
+# def append_string_to_dict_values(
+#     input_dictionary: dict[Hashable, Any],
+#     string_to_append: str,
+#     included_keys: Hashable | Iterable[Hashable] | None = None,
+# ) -> dict:
+#     """
+#     Append a string to the end of string values in a dictionary (including multi-level dictionaries).
+#     Will default to all string values found, but can optionally select one or a set of key filters.
+
+#     Parameters
+#     ----------
+#     input_dictionary : dict[Hashable, Any]
+#         The input dictionary to modify.
+#     string_to_append : str
+#         The string to append to the end of string values in the dictionary.
+#     included_keys : Hashable | Iterable[Hashable] | None, optional
+#         A key or iterable of keys to include. If specified, the string will only
+#         be appended to values corresponding to these included keys. By default,
+#         the string is appended to all string values in the dictionary.
+
+#     Returns
+#     -------
+#     dict
+#         A new dictionary with the same keys as the input dictionary, but with
+#         string values appended with the specified string.
+
+#     Notes
+#     -----
+#     This function recursively iterates through nested dictionaries to append
+#     the string to all string values. If a key filter is specified, the function
+#     will only append the string to values corresponding to the filtered keys.
+
+#     Non-string values are skipped.
+
+#     Examples
+#     --------
+#     >>> input_dict = {'a': 'hello', 'b': {'c': 'world', 'd': 'foo'}}
+#     >>> output_dict = append_string_to_dict_values(input_dict, '!')
+#     >>> print(output_dict)
+#     {'a': 'hello!', 'b': {'c': 'world!', 'd': 'foo!'}}
+#     """
+#     output_dictionary: dict[Hashable, Any] = {}
+#     key: Hashable
+#     value: Any
+#     for key, value in input_dictionary.items():
+#         if not isinstance(value, str):  # only append to strings, otherwise skip
+#             output_dictionary[key] = value
+#         elif isinstance(value, dict):  # recursively call this function if the value is a dictionary
+#             output_dictionary[key] = append_string_to_dict_values(
+#                 input_dictionary=value,
+#                 included_keys=included_keys,
+#                 string_to_append=string_to_append
+#             )
+#         elif any(  # append string if the key is in the keys_filter or keys_filter is not specified
+#             (
+#                 included_keys is None,
+#                 not isinstance(included_keys, Iterable) and key == included_keys,
+#                 isinstance(included_keys, Iterable) and key in included_keys,
+#             )
+#         ):
+#             output_dictionary[key] = value + string_to_append
+#         else:  # otherwise, just copy the value without appending the string
+#             output_dictionary[key] = value
+
+#     return output_dictionary
+
 
 # Demonstration
 if __name__ == "__main__":
     # nested dict for example
-    nested_dict: dict = {
+    nested_dict: dict[int] = {
         "a": {
             "b": {
                 "c": 66,
@@ -78,6 +146,17 @@ if __name__ == "__main__":
             "e": 33,
         },
         "f": 88,
+    }
+
+    nested_dict_string: dict[str] = {
+        "a": {
+            "b": {
+                "c": "hello",
+                "d": "world",
+            },
+            "e": "foo",
+        },
+        "f": "bar",
     }
 
     print("Example of a nested dictionary")
@@ -93,3 +172,8 @@ if __name__ == "__main__":
     print()
     print("Deepest key-value pairs of nested dictionary")
     print(dictionary_deepest_key_value_pairs(nested_dict))
+    print()
+    # WIP
+    # print("Appending string to all string values in nested dictionary")
+    # print(append_string_to_dict_values(nested_dict_string, '!', ['a', 'b', 'c', 'f']))
+    # print()
