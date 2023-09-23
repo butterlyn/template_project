@@ -78,33 +78,33 @@ loaders_dict: LoadersDictTypeHint = {
             'return_as_dataframe': duckdb_csv_return_as_dataframe_benchmark_function,
         }
     },
-    # 'parquet': {
-    #     'pandas': {
-    #         'basic': pd.read_parquet,
-    #         'engine_pyarrow': partial(pd.read_parquet, engine='pyarrow'),
-    #         'engine_fastparquet': partial(pd.read_parquet, engine='fastparquet'),
-    #     },
-    #     'dask': {
-    #         'basic': dd.read_parquet,
-    #         'engine_pyarrow': partial(dd.read_parquet, engine='pyarrow'),
-    #         'engine_fastparquet': partial(dd.read_parquet, engine='fastparquet'),
-    #     },
-    #     'polars': {
-    #         'basic': pl.read_parquet,
-    #         'use_pyarrow': partial(pl.read_parquet, use_pyarrow=True),
-    #         'low_memory': partial(pl.read_parquet, low_memory=True),
-    #         'low_memory_use_pyarrow': partial(pl.read_parquet, low_memory=True, use_pyarrow=True),
-    #     },
-    #     'duckdb': {
-    #         'basic': duckdb_parquet_basic_benchmark_function,
-    #     },
-    #     'fastparquet': {
-    #         'basic (read only, no dataframe output)': fp.ParquetFile,
-    #         'return_as_dataframe': fastparquet_parquet_return_as_dataframe_benchmark_function,
-    #     },
-    #     'pyarrow': {
-    #         'basic (read only, no dataframe output)': pq.ParquetFile,
-    #         'read_table (read only, no dataframe output)': pq.read_table,
-    #     },
-    # },
+    'parquet': {
+        'pandas': {
+            'basic': pd.read_parquet,
+            'engine_pyarrow': partial(pd.read_parquet, engine='pyarrow'),
+            'engine_fastparquet': partial(pd.read_parquet, engine='fastparquet'),
+        },
+        'dask': {
+            'basic': dd.read_parquet,
+            'engine_pyarrow': partial(dd.read_parquet, engine='pyarrow'),
+            'engine_fastparquet': partial(dd.read_parquet, engine='fastparquet'),
+        },
+        'polars': {
+            'basic': pl.read_parquet,
+            'use_pyarrow': partial(pl.read_parquet, use_pyarrow=True),
+            'low_memory': partial(pl.read_parquet, low_memory=True),
+            'low_memory_use_pyarrow': partial(pl.read_parquet, low_memory=True, use_pyarrow=True),
+        },
+        'duckdb': {
+            'basic': duckdb_parquet_basic_benchmark_function,
+        },
+        'fastparquet': {
+            'basic (read only, no dataframe output)': fp.ParquetFile,
+            'return_as_dataframe': fastparquet_parquet_return_as_dataframe_benchmark_function,
+        },
+        'pyarrow': {
+            'basic (read only, no dataframe output)': pq.ParquetFile,
+            'read_table (read only, no dataframe output)': pq.read_table,
+        },
+    },
 }

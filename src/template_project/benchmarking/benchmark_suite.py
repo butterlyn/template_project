@@ -95,3 +95,53 @@ class Benchmarker(Protocol):
 # %%
 # CLASSES
 
+
+
+# .... reserch examples of how to use how ABC and Protocols at the same time. What is there purpose?
+
+from typing import Protocol, Callable, Any, Type
+
+class CallableItem(Protocol):
+    callable_: Callable[..., Any]
+    title: str
+
+class LoaderCallableProtocol(CallableItem):
+    file_type: str
+    output_type: Type
+
+class AlgorithmCallableProtocol(CallableItem):
+    input_type: Type
+    output_type: Type
+
+class FileSaverCallableProtocol(CallableItem):
+    file_type: str
+    input_type: Type
+
+
+
+from abc import ABC, abstractmethod
+from typing import Callable, Any, Type
+
+class CallableItem(ABC):
+    @abstractmethod
+    def __init__(self, callable_: Callable[..., Any], title: str) -> None:
+        self.callable_ = callable_
+        self.title = title
+
+class LoaderCallableProtocol(CallableItem):
+    def __init__(self, callable_: Callable[..., Any], title: str, file_type: str, output_type: Type) -> None:
+        super().__init__(callable_, title)
+        self.file_type = file_type
+        self.output_type = output_type
+
+class AlgorithmCallableProtocol(CallableItem):
+    def __init__(self, callable_: Callable[..., Any], title: str, input_type: Type, output_type: Type) -> None:
+        super().__init__(callable_, title)
+        self.input_type = input_type
+        self.output_type = output_type
+
+class FileSaverCallableProtocol(CallableItem):
+    def __init__(self, callable_: Callable[..., Any], title: str, file_type: str, input_type: Type) -> None:
+        super().__init__(callable_, title)
+        self.file_type = file_type
+        self.input_type = input_type
