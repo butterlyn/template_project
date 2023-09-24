@@ -54,7 +54,7 @@ def _replace_line_in_file(
     """
     file: TextIOWrapper
     with open(filename, 'r') as file:
-        file_content: list[str] = filename.readlines()
+        file_content: list[str] = file.readlines()
         replacement_file_content = file_content.copy()
         replacement_file_content[line_index] = replacement_line
     with open(filename, 'w') as file:
@@ -86,8 +86,8 @@ def replace_file_line_containing_matching_string(
 
     """
     # read the file into a list of lines
-    with open(filename, 'r') as filename:
-        lines: list[str] = filename.readlines()
+    with open(filename, 'r') as file:
+        lines: list[str] = file.readlines()
 
     # find the index of the first line that contains the match string
     line_index: int = _find_index_containing_string(lines, matching_string)
