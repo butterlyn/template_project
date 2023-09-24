@@ -10,8 +10,10 @@ setup(
         "*.pyx",
         compiler_directives={
             "language_level": "3",
-            "always_allow_keywords": True},
+            "always_allow_keywords": True,
+        },
     ),
     include_dirs=[
-        np.get_include()],
+        np.get_include(),
+    ],
 )
