@@ -4,21 +4,21 @@ from src.template_project.helpers import getRichLogger
 
 
 getRichLogger(
-    logging_level="INFO",
+    logging_level="DEBUG",
     logger_name=__name__,
     traceback_show_locals=True,
     traceback_extra_lines=10,
     traceback_suppressed_modules=(),
 )
 
-filepath: str = "test.json"
+filepath: str = r"render_plantuml_diagram_PLANTUML.md"
 
 logging.info("Rendering plantuml diagram...")
 output_filepath: str = render_plantuml_diagram(
     filepath=filepath,
-    diagram_format='png',
-    theme=None,
-    output_filepath=None,
+    diagram_format='svg',
+    theme='materia',
+    # output_filepath=
 )
 logging.info("Rendering plantuml diagram... DONE")
 
