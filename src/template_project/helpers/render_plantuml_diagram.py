@@ -96,6 +96,104 @@ _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION: dict[str, dict[str, str]] = {
 
 
 # %%
+# HELPER FUNCTIONS
+
+def _render_plantuml_diagram(
+    filepath: str,
+    diagram_format: str,
+    output_filepath: str,
+    header: str,
+    footer: str,
+) -> str:
+    """rendering the plantUML diagram and saving to file. Returns the path of the rendered diagram."""
+    try:
+        # make a temporary copy of the file
+        temporary_filepath: str = filepath + ".tmp"
+        with open(filepath, 'r') as f:
+            with open(temporary_filepath, 'w') as f_copy:
+                f_copy.write(f.read())
+                logging.debug(f"temporary copy of file created at {temporary_filepath}")
+
+        # append header and footer to the temporary file
+        append_string_to_start_or_end_of_file(  # append the footer to the end of the file
+            filepath=temporary_filepath,
+            string_to_append=footer,
+            end_of_file=True,
+        )
+        append_string_to_start_or_end_of_file(  # append the header to the beginning of the file
+            filepath=temporary_filepath,
+            string_to_append=header,
+            end_of_file=False,
+        )
+
+        # render the diagram
+        output_filepath_resolved: str = render_file(
+            infile=temporary_filepath,
+            renderopts={
+                'engine': 'plantuml',
+                'format': diagram_format,
+            },
+            outfile=output_filepath
+        )
+    finally:
+        # delete the temporary file, even if there is an error
+        os.remove(temporary_filepath)
+
+    # return the path of the rendered diagram
+    return output_filepath_resolved
+
+
+def _get_required_plantuml_header_footer(
+    filepath: str,
+    input_file_extension: str,
+    theme: str,
+    _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION: dict[str, dict[str, str]],
+) -> tuple[str, str]:
+    """determining the header and footer required for the plantUML diagram to render
+    if the theme is already specified in the file, replace the theme with the specified theme"""
+
+    # get the required header and footer plantUML declaration corresponding to the file type
+    header_required_plantuml_declaration: str = _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION[input_file_extension]["header"]
+    footer_required_plantuml_declaration: str = _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION[input_file_extension]["footer"]
+    logging.debug(f"header_required_plantuml_declaration: {header_required_plantuml_declaration}")
+    logging.debug(f"footer_required_plantuml_declaration: {footer_required_plantuml_declaration}")
+
+    # get the string required to set the theme in the plantUML diagram
+    header_theme_declaration: str = f"!theme {theme}\n"
+
+    # if plantuml markdown hint "```plantuml" is present in the file, remove it
+    line_in_file_with_plantuml_markdown_hint: int = replace_file_line_containing_matching_string(
+        filename=filepath,
+        matching_string="```plantuml",
+        replacement_line="",
+    )
+    logging.debug(f"plantuml markdown hint removed from file at line {line_in_file_with_plantuml_markdown_hint}")
+
+    # if theme is already specified in the file, replace the theme with the specified theme
+    line_in_file_already_specifying_theme: int = replace_file_line_containing_matching_string(
+        filename=filepath,
+        matching_string="!theme",
+        replacement_line=header_theme_declaration,
+    )
+    theme_already_specified_in_file_and_was_replaced: bool = (
+        True if line_in_file_already_specifying_theme != -1
+        else False
+    )
+    logging.debug(f"Theme was already specified in file: {theme_already_specified_in_file_and_was_replaced}")
+    logging.debug(f"Line in file specifying theme: {line_in_file_already_specifying_theme}. If -1, then theme was not specified in file.")
+
+    # specify the header and footer for the plantUML diagram
+    header: str = (
+        header_required_plantuml_declaration if theme_already_specified_in_file_and_was_replaced
+        else header_required_plantuml_declaration + header_theme_declaration
+    )
+    footer: str = footer_required_plantuml_declaration
+
+    # return the header and footer
+    return header, footer
+
+
+# %%
 # FUNCTIONS
 
 def render_plantuml_diagram(
@@ -183,7 +281,7 @@ def render_plantuml_diagram(
     if os.path.isdir(output_filepath_resolved):
         warning_message = f"Output filepath {output_filepath_resolved} is a directory, not a filepath. Default filename 'output_diagram' will be used."
         logging.warning(warning_message)
-        output_filepath_resolved = os.path.join(output_filepath_resolved, "output_diagram")
+        output_filepath_resolved = os.path.join(output_filepath_resolved, f"output_diagram.{diagram_format}")
 
     # check if the input file extension is supported
     input_file_extension: str = filepath.split(".")[-1]  # get the file extension
@@ -199,94 +297,7 @@ def render_plantuml_diagram(
         logging.error(error_message)
         raise ValueError(error_message)
 
-    # ~~~~~ define the business logic ~~~~~ #
-
-    def _get_required_plantuml_header_footer(
-        filepath: str,
-        input_file_extension: str,
-        theme: str,
-        _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION: dict[str, dict[str, str]] = _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION,
-    ) -> tuple[str, str]:
-        """determining the header and footer required for the plantUML diagram to render
-        if the theme is already specified in the file, replace the theme with the specified theme"""
-
-        # get the required header and footer plantUML declaration corresponding to the file type
-        header_required_plantuml_declaration: str = _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION[input_file_extension]["header"]
-        footer_required_plantuml_declaration: str = _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION[input_file_extension]["footer"]
-        logging.debug(f"header_required_plantuml_declaration: {header_required_plantuml_declaration}")
-        logging.debug(f"footer_required_plantuml_declaration: {footer_required_plantuml_declaration}")
-
-        # get the string required to set the theme in the plantUML diagram
-        header_theme_declaration: str = f"!theme {theme}\n"
-
-        # if theme is already specified in the file, replace the theme with the specified theme
-        line_in_file_already_specifying_theme: int = replace_file_line_containing_matching_string(
-            filename=filepath,
-            matching_string="!theme",
-            replacement_line=header_theme_declaration,
-        )
-        theme_already_specified_in_file_and_was_replaced: bool = (
-            True if line_in_file_already_specifying_theme != -1
-            else False
-        )
-        logging.debug(f"Theme was already specified in file: {theme_already_specified_in_file_and_was_replaced}")
-        logging.debug(f"Line in file specifying theme: {line_in_file_already_specifying_theme}. If -1, then theme was not specified in file.")
-
-        # specify the header and footer for the plantUML diagram
-        header: str = (
-            header_required_plantuml_declaration if theme_already_specified_in_file_and_was_replaced
-            else header_required_plantuml_declaration + header_theme_declaration
-        )
-        footer: str = footer_required_plantuml_declaration
-
-        # return the header and footer
-        return header, footer
-
-    def _render_plantuml_diagram(
-        filepath: str,
-        diagram_format: str,
-        output_filepath: str,
-        header: str,
-        footer: str,
-    ) -> str:
-        """rendering the plantUML diagram and saving to file. Returns the path of the rendered diagram."""
-        try:
-            # make a temporary copy of the file
-            temporary_filepath: str = filepath + ".tmp"
-            with open(filepath, 'r') as f:
-                with open(temporary_filepath, 'w') as f_copy:
-                    f_copy.write(f.read())
-                    logging.debug(f"temporary copy of file created at {temporary_filepath}")
-
-            # append header and footer to the temporary file
-            append_string_to_start_or_end_of_file(  # append the footer to the end of the file
-                filepath=temporary_filepath,
-                string_to_append=footer,
-                end_of_file=True,
-            )
-            append_string_to_start_or_end_of_file(  # append the header to the beginning of the file
-                filepath=temporary_filepath,
-                string_to_append=header,
-                end_of_file=False,
-            )
-
-            # render the diagram
-            render_file(
-                infile=temporary_filepath,
-                renderopts={
-                    'engine': 'plantuml',
-                    'format': diagram_format,
-                },
-                outfile=output_filepath
-            )
-        finally:
-            # delete the temporary file, even if there is an error
-            os.remove(temporary_filepath)
-
-        # return the path of the rendered diagram
-        return output_filepath_resolved
-
-    # ~~~~~ execute business logic ~~~~~ #
+    # ~~~~~ business logic ~~~~~ #
 
     # get the required header and footer plantUML declaration corresponding to the file type
     header: str
@@ -295,6 +306,7 @@ def render_plantuml_diagram(
         filepath=filepath,
         input_file_extension=input_file_extension,
         theme=theme,
+        _REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION=_REQUIRED_PLANTUML_DECLARATION_BY_FILE_EXTENSION,
     )
 
     # render the plantUML diagram
@@ -321,8 +333,10 @@ if __name__ == "__main__":
     output_filepath: str = render_plantuml_diagram(
         filepath=filepath,
         diagram_format='svg',
-        theme='blueprint',
+        theme='materia',
         output_filepath=None,
     )
 
     print(output_filepath)
+
+    # example svg output: https://tinyurl.com/5e5tzxm5
