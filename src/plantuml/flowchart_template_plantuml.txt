@@ -1,0 +1,20 @@
+@startuml
+!theme materia
+!pragma useVerticalIf on
+skinparam note {
+    BackgroundColor gray
+    BorderColor lightgray
+    FontColor white
+}
+
+TITLE my_title
+
+START
+
+:start dancing;
+
+STOP
+@enduml
+
+' paste this template here: http://www.plantuml.com/plantuml/uml/
+' flowchart syntax can be found here: https://plantuml.com/activity-diagram-beta
