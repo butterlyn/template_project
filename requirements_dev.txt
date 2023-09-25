@@ -4,10 +4,12 @@ pytest-benchmark
 mypy
 mypy-extensions
 autopep8
-pycallgraph2  # requires graphviz installation on ubuntu
+# pycallgraph2  # requires graphviz installation on ubuntu
 memory-profiler
 rich
 exceptiongraph
 nox
+cython
+# willy  # WIP
 # py-heat  # requires conda install
 # heartrate  # requires conda install
