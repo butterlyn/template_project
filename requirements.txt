@@ -10,3 +10,5 @@ numexpr
 duckdb
 # julia  # this requires separate julia installation, adding julia to path, pip installing `julia`, then running in python once `import julia; julia.install()`
 numba
+cx-oracle
+# WA_db  # needs to be installed via git clone
