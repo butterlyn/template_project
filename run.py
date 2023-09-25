@@ -1,6 +1,6 @@
 import logging
-from src.template_project.helpers import render_plantuml_diagram
-from src.template_project.helpers import getRichLogger
+from template_project.helpers import render_plantuml_diagram
+from template_project.helpers import getRichLogger
 
 
 getRichLogger(

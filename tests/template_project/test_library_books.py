@@ -1,6 +1,6 @@
 from contextlib import nullcontext as does_not_raise
 import pytest
-from src.template_project.library_books import (
+from template_project.library_books import (
     Book,
     BookDefaults,
 )
