@@ -2,9 +2,19 @@ import nox
 
 
 @nox.session
+def cython_compile(session):
+    session.install("cython", "numpy")
+    session.run(
+        "python",
+        "cython_compile.py",
+        "build_ext",
+        "--inplace",
+    )
+
+
+@nox.session
 def type_check(session):
-    session.install("mypy")
-    session.install("mypy-extensions")
+    session.install("mypy", "mypy-extensions")
     session.run("mypy", "--ignore-missing-imports", "src")
 
 
