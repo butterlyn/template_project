@@ -6,7 +6,7 @@ import numpy as np
 
 setup(
     ext_modules=cythonize(
-        "src/**/*.pyx",
+        "**/*.pyx",
         compiler_directives={
             "language_level": "3",
             "always_allow_keywords": True,
