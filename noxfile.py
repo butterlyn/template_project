@@ -31,6 +31,12 @@ def test(session):
     session.run("pytest", "tests")
 
 
+# TODO: add incremental typechecking, coverage, memory profiling, coverage, statistics, pyre configuration file
+@nox.session
+def pyre(session):
+    session.install("pyre-check")
+    session.run("pyre", "--source-directory", ".", "check")
+
 # # WIP not working yet. add automatic appending of @profile for functions
 # @nox.session
 # def profile_memory(session):
