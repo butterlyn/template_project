@@ -15,7 +15,7 @@ def cython_compile(session):
 @nox.session
 def type_check(session):
     session.install("mypy", "mypy-extensions")
-    session.run("mypy", "--ignore-missing-imports", ".")
+    session.run("mypy", "--ignore-missing-imports", "template_project")
 
 
 @nox.session
