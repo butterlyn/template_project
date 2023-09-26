@@ -12,3 +12,4 @@ duckdb
 numba
 cx-oracle
 # WA_db  # needs to be installed via git clone
+exceptiongroup
