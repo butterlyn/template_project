@@ -130,3 +130,28 @@ def append_string_to_start_or_end_of_file(
             f.write(contents + '\n' + string_to_append)
         else:
             f.write(string_to_append + '\n' + contents)
+
+
+def add_flags_to_cli_arugments(
+    cli_arugments: list[str],
+    flags: str | Iterable[str],
+) -> list[str]:
+    """
+    Adds flag to a list of command line interface (cli) arugments to prepare them to be passed to the command line.
+    e.g.:
+    >>> add_flag_to_flag_arumgnets(["environment.yml", "environment-dev.yml"], "-f")  # output: ["-f", "environment.yml", "-f", "environment-dev.yml"]
+    >>> subprocess("conda", "env", "update", *["-f", "environment.yml", "-f", "environment-dev.yml"], "--prune")  # update conda environment from environment.yml and environment-dev.yml
+    """
+    # resolve inputs
+    if isinstance(flags, Iterable):
+        flags_list: list[str] = list(flags)  # convert to list if not already
+    if isinstance(flags, str):
+        flags_list: list[str] = [flags]*len(cli_arugments)
+    # check inputs are valid
+    if len(flags_list) != len(cli_arugments):
+        raise ValueError(f"Length of flags ({len(flags_list)}) must match length of flag_arugments ({len(cli_arugments)})")
+    # add flags to flag_arugments
+    cli_arguments_with_flags: list[str] = []
+    for flag, argument in zip(flags_list, cli_arugments):
+        cli_arguments_with_flags.extend([flag, argument])
+    return cli_arguments_with_flags
