@@ -1,0 +1,11 @@
+# docker-compose -f dev_container.docker-compose.yml -f some_other_container.docker-compose.yml up
+
+version: '2'
+services:
+
+    service-name:
+        image: dev_container
+        env_file:
+        - .env
+#        environment:
+#        - GITHUB_USERNAME=butterlyn
