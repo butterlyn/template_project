@@ -1,0 +1,23 @@
+name: template_project
+channels:
+  - default
+  - conda-forge
+dependencies:
+  - python=3.10
+  - rich
+  - pandas
+  - polars
+  - pyarrow
+  - dask
+  - numpy
+  - numexpr
+  # julia  # this requires separate julia installation, adding julia to path, pip installing `julia`, then running in python once `import julia; julia.install()`
+  - numba
+  # WA_db  # needs to be installed via git clone
+  - exceptiongroup
+  - pip
+  - pip:
+    - plantweb
+    - alive_progress
+    - duckdb
+    - cx-oracle
