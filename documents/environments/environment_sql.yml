@@ -1,0 +1,6 @@
+dependencies:
+  - python=3.8  # stated in the WA_db repo, but perhaps not necessary
+  - pip
+  - pip:
+    - cx-oracle
+    - git+ssh://git@norvbgit1.aemo.local/PSMP/WA_db.git@master#egg=wa-db  # requies ssh setup for GitHub Enterprise norvbgit1.aemo.local

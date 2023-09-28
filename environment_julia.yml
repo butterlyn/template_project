@@ -1,0 +1,4 @@
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::pyjulia  # requires separate julia installation, adding julia to path, pip installing `julia`, then running in python once `import julia; julia.install()`

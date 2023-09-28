@@ -1,0 +1,15 @@
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - pandas
+  - polars
+  - pyarrow
+  - dask
+  - numpy
+  - numexpr
+  - numba
+  - pip
+  - pip:
+    - alive_progress
+    - duckdb

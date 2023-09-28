@@ -18,7 +18,8 @@ dependencies:
   - ipykernel
   - numpy
   - pandas
-  
+  - geopandas
+
 ### Plotting
   - matplotlib
   - seaborn

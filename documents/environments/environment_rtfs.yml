@@ -1,0 +1,10 @@
+channels:
+  - default
+  - conda-forge
+  - "file:////aemo.local/data/Departments/WA/WA System Management/Power Systems/Repository/conda_channel"
+dependencies:
+  - numpy
+  - pandas
+  - PySide2
+  - cython
+  - aemo-pi>=1.2.0

@@ -1,0 +1,6 @@
+channels:
+  - defaults
+  - conda-forge
+  - file:////aemo.local/data/Departments/WA/WA System Management/Power Systems/Repository/conda_channel
+dependencies:
+  - aemo-pi
