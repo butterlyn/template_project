@@ -1,0 +1,35 @@
+name: kedro39
+channels:
+  - defaults
+  - conda-forge
+  - "file:////aemo.local/data/Departments/WA/WA System Management/Power Systems/Repository/conda_channel"
+dependencies:
+  # - python=3.10.12
+  - python=3.9.17
+  - pandas
+  - numpy
+  - matplotlib
+  - plotly
+  - jupyter
+  - ipykernel
+  - openpyxl
+  - cx_oracle
+  - geopandas
+  - conda-forge::kedro
+  #  - kedro-neptune
+  #  - kedro-airflow
+  - conda-forge/label/cython_dev::cython
+  - aemo-pi
+  - aemo-oracle
+  - pip
+  - pip:
+      - kedro-datasets
+      - kedro-viz
+      - mypy
+      - pytest
+      - find-kedro
+      - git+ssh://git@norvbgit1.aemo.local/PSMP/WA_db.git@master#egg=wa-db
+      # - kedro-docker
+      # - kedro-accelerator
+      # - find-kedro
+      # - kedro-mlflow

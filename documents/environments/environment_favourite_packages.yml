@@ -1,0 +1,48 @@
+# This .yml file is made to organise python packages I discover, many of which I would have not even tried.
+# The idea is that I can create a yml file by deleting packages that aren't required, and then use the yml file to install the packages in a new environment.
+
+name: favourite_packages
+
+channels:
+  - file:////aemo.local/data/Departments/WA/WA System Management/Power Systems/Repository/conda_channel
+  - conda-forge
+  - anaconda
+  - defaults
+
+dependencies:
+
+### General
+
+  - python={{ python_version | default('3.11.3') }}
+  - jupyter
+  - ipykernel
+  - numpy
+  - pandas
+  
+### Plotting
+  - matplotlib
+  - seaborn
+  - plotly
+
+#  - cufflinks
+#  - matplotlib-inline
+#  - bokeh
+#  - autoviz
+#  - sweetviz  
+
+### CLI
+#  - python-fire
+#  - click
+
+### Git
+  - git
+  - gh
+  - gitpython
+
+### Pip
+  - pip
+
+  - pip:
+    - 
+#    - git+https://github.com/{{ github_user }}/{{ repo }}.git@{{ branch }}#egg={{ pip_installation_name_if_different_to_git_repo_name }}
+#    - -r https://raw.githubusercontent.com/{{ github_user }}/{{ repo }}/{{ branch }}/requirements.txt
