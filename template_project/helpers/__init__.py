@@ -1,5 +1,4 @@
 from .rich_logger import getRichLogger
-from .sql_querier import SqlQuerier
 from .dictionary_utils import (
     dictionary_deepest_key_value_pairs,
     flatten_dict,
@@ -8,13 +7,14 @@ from .dictionary_utils import (
 from .file_utils import (
     replace_file_line_containing_matching_string,
     append_string_to_start_or_end_of_file,
+    add_flags_to_cli_arugments,
 )
 from .validate_arguments import validate_arguments
 from .render_plantuml_diagram import render_plantuml_diagram
+from .environment_setup import update_conda_environment_to_production_environment
 
 __all__: list[str] = [
     "getRichLogger",
-    "SqlQuerier",
     "dictionary_deepest_key_value_pairs",
     "flatten_dict",
     "count_final_values_in_dict",
@@ -22,4 +22,6 @@ __all__: list[str] = [
     "replace_file_line_containing_matching_string",
     "render_plantuml_diagram",
     "append_string_to_start_or_end_of_file",
+    "add_flags_to_cli_arugments",
+    "update_conda_environment_to_production_environment",
 ]
