@@ -1,5 +1,8 @@
 channels:
   - conda-forge
 dependencies:
-  - cython
+  - conda-forge/label/cython_dev::cython
   - numpy
+  - pip
+  - pip:
+    - pymsvc
