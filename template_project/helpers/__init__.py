@@ -4,6 +4,9 @@ from .dictionary_utils import (
     flatten_dict,
     count_final_values_in_dict,
 )
+from .list_utils import(
+    _replace_an_item_in_list,
+)
 from .file_utils import (
     replace_file_line_containing_matching_string,
     append_string_to_start_or_end_of_file,
@@ -24,4 +27,5 @@ __all__: list[str] = [
     "append_string_to_start_or_end_of_file",
     "add_flags_to_cli_arugments",
     "update_conda_environment_to_production_environment",
+    "_replace_an_item_in_list"
 ]
